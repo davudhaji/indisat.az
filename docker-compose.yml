@@ -1,0 +1,75 @@
+version: "3"
+
+services:
+  # postgres:
+  #   container_name:  postgres-db-qmeteradmin
+  #   image:           postgres:11
+  #   restart: "always"
+  #   ports:
+  #     - 5434:5432 # Bind host port 5432 to PostgreSQL port 5432
+  #   volumes:
+  #     - ./pgdb:/var/lib/postgresql/data
+  #   env_file: .env
+  #   environment:
+  #     - LC_ALL=C.UTF-8
+
+  # redis:
+  #   image: redis:5
+  #   restart: "always"
+  #   container_name: rediskb
+  #   command: redis-server
+  #   # ports:
+  #   #   - 6379:6379
+  #   volumes:
+  #     - ./redisdb:/var/lib/redis
+  #   env_file: .env
+
+  # celery:
+  #   container_name: celerykb
+  #   build: .
+  #   restart: "always"
+  #   command: celery --app=kbcross.celery:app worker -B --loglevel=DEBUG
+  #   env_file: .env
+  #   environment:
+  #     - LANG=C.UTF-8
+  #     - LANG=en_US.UTF-8
+  #     - LANGUAGE=en_US:en
+  #     - LC_ALL=en_US.UTF-8
+  #   volumes:
+  #     - .:/code
+
+  web:
+    container_name: indisat
+    build: .
+    restart: "always"
+    command: ["uwsgi", "--ini", "/code/uwsgi.ini"]
+    #    command: daphne --bind 0.0.0.0 --port 8050 aqms.asgi:application
+    env_file: .env
+    environment:
+      #- VIRTUAL_HOST=api-new.qmeter.net
+      - VIRTUAL_PORT=8025
+      - TIMEOUT=300
+      - HTTP_PORT=8025
+      - STATS_PORT=8051
+      - LANG=C.UTF-8
+      - LANG=en_US.UTF-8
+      - LANGUAGE=en_US:en
+      - LC_ALL=en_US.UTF-8
+    volumes:
+      - .:/code
+      - ./media:/code/media
+      - ./static:/code/static
+    ports:
+      - "8055:8055"
+    # links:
+    #   - postgres
+    # depends_on:
+    #   - "postgres"
+#volumes:
+#  esdata:
+#    driver: local
+
+# networks:
+#   default:
+#     external:
+#       name: nginx-proxy
