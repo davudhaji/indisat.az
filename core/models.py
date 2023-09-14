@@ -9,6 +9,9 @@ User = get_user_model()
 
 class Category(models.Model):
     name = models.CharField(max_length=150)
+    child_category = models.ForeignKey(
+        "Category", on_delete=models.CASCADE, blank=True, null=True
+    )
 
 
 class Country(models.Model):
@@ -33,6 +36,7 @@ class Classifieds(models.Model):
     expire_date = models.DateTimeField()  # created time + 15 days
     verify = models.BooleanField(default=False)
     slug = models.SlugField(default=None)
+    type = models.ForeignKey("ClassifiedsType", on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs) -> None:
         self.slug = slugify(self.title)
@@ -46,10 +50,26 @@ class ClassifiedsUtils(models.Model):
     main_classifieds = models.ForeignKey(Classifieds, on_delete=models.CASCADE)
 
 
-class ClassifiedsTypes(models.Model):
+class ClassiFiedsStat(models.Model):
+    views = models.IntegerField()
+    classifieds = models.ForeignKey("Classifieds", on_delete=models.CASCADE)
+
+
+class ClassifiedsType(models.Model):
     name = models.CharField(max_length=100)
     price = models.IntegerField()
     bio = models.TextField()
+
+
+class ExtraFields(models.Model):
+    name = models.CharField(max_length=100)
+    category = models.ForeignKey("Category", on_delete=models.CASCADE)
+
+
+class ExtraValue(models.Model):
+    value = models.CharField(max_length=120)
+    field = models.ForeignKey("ExtraFields", on_delete=models.CASCADE)
+    classifieds = models.ForeignKey("Classifieds", on_delete=models.CASCADE)
 
 
 class Store(models.Model):
